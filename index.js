@@ -18,7 +18,7 @@ bot.onText(/\/start/, (msg) => {
         [
           {
             text: "🚀 Старт",
-            web_app: { url: webAppUrl }
+            web_app: { url: "https://your-fitness-quest-bot.vercel.app/" }
           }
         ]
       ]
