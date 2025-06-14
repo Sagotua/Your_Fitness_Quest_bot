@@ -47,11 +47,14 @@
 
   <script>
     window.addEventListener("DOMContentLoaded", () => {
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.ready();   // Сповіщає Telegram, що все готово
-        Telegram.WebApp.expand();  // Автоматичне розгортання на весь екран
-      }
-    });
+  if (window.Telegram && Telegram.WebApp) {
+    console.log("✅ Telegram WebApp API доступний");
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  } else {
+    console.log("❌ Telegram WebApp API не доступний");
+  }
+});
   </script>
 </body>
 </html>
