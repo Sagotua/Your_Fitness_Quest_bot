@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fitness WebApp</title>
 
+  <!-- Піксельний шрифт -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
@@ -13,7 +14,7 @@
       padding: 0;
       height: 100%;
       background: url('https://i.postimg.cc/HLLJgBn8/Chat-GPT-Image-Jun-14-2025-02-23-29-PM.png') no-repeat center center fixed;
-      background-size: cover;
+      background-size: 90%; /* ← "віддалення" фону */
       font-family: 'Press Start 2P', cursive;
     }
 
@@ -34,13 +35,13 @@
       color: black;
       border: 4px solid black;
       padding: 14px 18px;
-      font-size: clamp(8px, 3.5vw, 14px); /* адаптивний розмір */
+      font-size: clamp(8px, 3.5vw, 14px);
       cursor: pointer;
       text-transform: uppercase;
       box-shadow: 4px 4px 0px black;
       transition: all 0.1s ease;
-      flex: 1 1 45%;     /* кнопки адаптивні, займають половину ширини */
-      max-width: 160px;  /* але не ширші за 160px */
+      flex: 1 1 45%;
+      max-width: 160px;
       text-align: center;
     }
 
