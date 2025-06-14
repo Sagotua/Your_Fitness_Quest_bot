@@ -44,6 +44,16 @@
       box-shadow: 4px 4px 0px black;
     }
 
+    .counter div {
+            margin: 4px 0;
+            /* загальна вертикальна відстань */
+        }
+
+        .counter .counter-gap {
+            margin-top: 12px;
+            /* більший відступ перед Повтори */
+        }
+
     .btn {
       background-color: #FFD400;
       color: black;
@@ -69,9 +79,9 @@
     <h1>💪 PUSH-UPS</h1>
 
     <div class="counter">
-      Підхід: <span id="setNum">1</span> / 5<br/>
-      Повтори: <span id="repCount">0</span>
-    </div>
+  <div>Підхід: <span id="setNum">1</span> / 5</div>
+  <div class="counter-gap">Повтори: <span id="repCount">0</span></div>
+</div>
 
     <button class="btn" onclick="addRep(1)">+1 REP</button>
     <button class="btn" onclick="addRep(10)">+10 REP</button>
