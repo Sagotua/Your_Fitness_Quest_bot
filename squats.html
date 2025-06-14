@@ -73,7 +73,8 @@
       Повтори: <span id="repCount">0</span>
     </div>
 
-    <button class="btn" onclick="addRep()">+1 REP</button>
+    <button class="btn" onclick="addRep(1)">+1 REP</button>
+    <button class="btn" onclick="addRep(10)">+10 REP</button>
     <button class="btn" onclick="nextSet()">Наступний підхід</button>
     <button class="btn" onclick="finish()">Завершити</button>
     <br/>
@@ -88,9 +89,9 @@
     const setNum = document.getElementById('setNum');
     const repCount = document.getElementById('repCount');
 
-    function addRep() {
+    function addRep(count = 1) {
       if (currentSet > maxSets) return;
-      repsPerSet[currentSet - 1]++;
+      repsPerSet[currentSet - 1] += count;
       repCount.textContent = repsPerSet[currentSet - 1];
     }
 
