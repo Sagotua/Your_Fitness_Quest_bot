@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fitness WebApp</title>
 
-  <!-- Піксельний шрифт -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
@@ -24,8 +23,9 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      gap: 20px;
-      padding: 0 10px;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 0 16px;
       box-sizing: border-box;
     }
 
@@ -33,12 +33,15 @@
       background-color: #FFD400;
       color: black;
       border: 4px solid black;
-      padding: 18px 20px;
-      font-size: 10px;
+      padding: 14px 18px;
+      font-size: clamp(8px, 3.5vw, 14px); /* адаптивний розмір */
       cursor: pointer;
       text-transform: uppercase;
       box-shadow: 4px 4px 0px black;
       transition: all 0.1s ease;
+      flex: 1 1 45%;     /* кнопки адаптивні, займають половину ширини */
+      max-width: 160px;  /* але не ширші за 160px */
+      text-align: center;
     }
 
     .btn:active {
@@ -56,11 +59,10 @@
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const tg = window.Telegram?.WebApp;
-
       if (tg) {
         console.log("✅ Telegram WebApp API доступний");
         tg.ready();
-        tg.expand(); // ← повноекранне відкриття
+        tg.expand();
       } else {
         console.log("❌ Telegram WebApp API не доступний");
       }
