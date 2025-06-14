@@ -117,19 +117,14 @@
         }
 
         function finish() {
-            const user = window.Telegram?.WebApp.initDataUnsafe?.user;
             const payload = {
-                user_id: user?.id,
-                username: user?.username || 'anonymous',
                 exercise: 'pushups',
-                reps: repsPerSet,
-                total: repsPerSet.reduce((a, b) => a + b, 0),
-                date: new Date().toISOString()
+                reps: repsPerSet
             };
 
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.sendData(JSON.stringify(payload));
-                alert("✅ Результати відправлено!");
+                Telegram.WebApp.close(); // Закриває WebView після відправки
             } else {
                 alert("❌ Telegram WebApp API не доступний");
             }

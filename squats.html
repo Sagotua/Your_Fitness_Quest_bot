@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Squats | Fitness Quest</title>
+    <h1>🏋️ SQUATS</h1>
 
     <!-- Піксельний шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -117,19 +118,14 @@
         }
 
         function finish() {
-            const user = window.Telegram?.WebApp.initDataUnsafe?.user;
             const payload = {
-                user_id: user?.id,
-                username: user?.username || 'anonymous',
                 exercise: 'squats',
-                reps: repsPerSet,
-                total: repsPerSet.reduce((a, b) => a + b, 0),
-                date: new Date().toISOString()
+                reps: repsPerSet
             };
 
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.sendData(JSON.stringify(payload));
-                alert("✅ Результати відправлено!");
+                Telegram.WebApp.close();
             } else {
                 alert("❌ Telegram WebApp API не доступний");
             }
