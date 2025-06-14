@@ -4,7 +4,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const token = "7928189423:AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
 
 // 🚀 URL на майбутній вебдодаток (тимчасово можемо поставити Google)
-const webAppUrl = "https://example.com"; // ← заміниш, коли буде готовий додаток
+const webAppUrl = "https://your-fitness-quest-bot.vercel.app/"; // ← заміниш, коли буде готовий додаток
 
 const bot = new TelegramBot(token, { polling: true });
 
