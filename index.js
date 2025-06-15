@@ -8,46 +8,41 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🟢 Telegram токен
-const token = process.env.TELEGRAM_BOT_TOKEN || "YOUR_FALLBACK_BOT_TOKEN";
-const bot = new TelegramBot(token);
+// 🔐 Telegram токен та Webhook URL
+const token = process.env.TELEGRAM_BOT_TOKEN;
+const WEBHOOK_URL = process.env.WEBHOOK_URL; // наприклад: https://fitness-server-8k9n.onrender.com
 
-// 🟢 MongoDB URI
+// 🔌 Telegram Webhook замість polling
+const bot = new TelegramBot(token);
+bot.setWebHook(`${WEBHOOK_URL}/bot${token}`);
+
+// 📡 Обробка Telegram запитів
+app.post(`/bot${token}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// 🔗 Підключення до MongoDB
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
+
 const client = new MongoClient(mongoUri, {
   tls: true,
   tlsAllowInvalidCertificates: false
 });
 
 let collection;
-
-// 🔌 Підключення до MongoDB
 async function connectToMongo() {
   try {
     await client.connect();
     const db = client.db("fitness");
     collection = db.collection("results");
     console.log("✅ Підключено до MongoDB");
-
-    const count = await collection.countDocuments();
-    console.log(`📦 В базі результатів: ${count} документів`);
   } catch (err) {
     console.error("❌ MongoDB підключення провалено", err);
   }
 }
 connectToMongo();
-
-// 🔔 Встановити webhook
-const WEBHOOK_URL = process.env.WEBHOOK_URL || "https://fitness-server-8k9n.onrender.com"; // твій backend
-bot.setWebHook(`${WEBHOOK_URL}/bot${token}`);
-
-// 🔄 Обробка Telegram webhook
-app.post(`/bot${token}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
-
 
 // ▶️ Команда /start
 bot.onText(/\/start/, (msg) => {
@@ -62,10 +57,8 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
-// 📩 Обробка результатів з WebApp
+// 📩 Обробка даних з WebApp
 bot.on("web_app_data", async (msg) => {
-  console.log("📩 Отримано web_app_data:", msg.web_app_data);
-
   const chatId = msg.chat.id;
   const userId = msg.from.id;
   const username = msg.from.username || `id${userId}`;
@@ -82,55 +75,40 @@ bot.on("web_app_data", async (msg) => {
     };
 
     await collection.insertOne(entry);
-    console.log(`📝 Збережено в MongoDB:`, entry);
+    console.log("📝 Збережено:", entry);
     bot.sendMessage(chatId, `✅ Результат для ${entry.exercise} збережено!`);
-  } catch (e) {
-    console.error("❌ Помилка при збереженні:", e);
+  } catch (err) {
+    console.error("❌ Помилка при обробці даних:", err);
     bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
   }
 });
 
-// 🏆 Таблиця лідерів (2 топи)
+// 🏆 /api/scoreboard
 app.get("/api/scoreboard", async (req, res) => {
   try {
-    const allResults = await collection.find({}).toArray();
+    const all = await collection.find({}).toArray();
+    const pushups = {}, squats = {};
 
-    const pushups = {};
-    const squats = {};
-
-    for (const r of allResults) {
+    for (const r of all) {
       const name = "@" + r.username;
       const total = Array.isArray(r.reps) ? r.reps.reduce((a, b) => a + b, 0) : 0;
 
-      if (r.exercise === "pushups") {
-        pushups[name] = (pushups[name] || 0) + total;
-      }
-
-      if (r.exercise === "squats") {
-        squats[name] = (squats[name] || 0) + total;
-      }
+      if (r.exercise === "pushups") pushups[name] = (pushups[name] || 0) + total;
+      if (r.exercise === "squats") squats[name] = (squats[name] || 0) + total;
     }
 
-    const pushupLeaders = Object.entries(pushups)
-      .map(([name, total]) => ({ name, total }))
-      .sort((a, b) => b.total - a.total);
+    const toSorted = obj =>
+      Object.entries(obj).map(([name, total]) => ({ name, total })).sort((a, b) => b.total - a.total);
 
-    const squatLeaders = Object.entries(squats)
-      .map(([name, total]) => ({ name, total }))
-      .sort((a, b) => b.total - a.total);
-
-    res.json({
-      pushups: pushupLeaders,
-      squats: squatLeaders
-    });
-  } catch (e) {
-    console.error("❌ Помилка при формуванні /api/scoreboard:", e);
+    res.json({ pushups: toSorted(pushups), squats: toSorted(squats) });
+  } catch (err) {
+    console.error("❌ Scoreboard помилка:", err);
     res.status(500).json({ error: "DB error" });
   }
 });
 
-// 🚀 Запуск сервера
+// 🌐 Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🌐 Web server запущено на порту ${PORT}`);
+  console.log(`🌍 Сервер запущено на порту ${PORT}`);
 });
