@@ -1,3 +1,4 @@
+const cors = require("cors");
 require("dotenv").config();
 const express = require("express");
 const { MongoClient } = require("mongodb");
@@ -5,8 +6,8 @@ const TelegramBot = require("node-telegram-bot-api");
 const cors = require("cors");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
-app.use(cors()); // 👈 дозволяє Vercel звертатись до Render
 
 // 🟢 Telegram токен
 const token = process.env.TELEGRAM_BOT_TOKEN || "YOUR_FALLBACK_BOT_TOKEN";
