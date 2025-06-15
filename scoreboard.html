@@ -90,7 +90,7 @@
   <script>
     async function loadScoreboard() {
       try {
-        const res = await fetch("/api/scoreboard");
+        const res = await fetch("https://fitness-server-8k9n.onrender.com/api/scoreboard");
         const data = await res.json();
 
         const pushups = [...data].sort((a, b) => b.pushups - a.pushups);
