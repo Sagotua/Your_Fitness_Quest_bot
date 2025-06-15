@@ -31,7 +31,11 @@ app.post(`/bot${token}`, (req, res) => {
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
 
-const client = new MongoClient(mongoUri);
+const client = new MongoClient(mongoUri, {
+  tls: true,
+  tlsAllowInvalidCertificates: false
+});
+
 let collection;
 
 async function connectToMongo() {
@@ -42,6 +46,7 @@ async function connectToMongo() {
     console.log("✅ Підключено до MongoDB");
   } catch (err) {
     console.error("❌ MongoDB підключення провалено", err);
+    process.exit(1);
   }
 }
 connectToMongo();
@@ -67,10 +72,7 @@ bot.on("web_app_data", async (msg) => {
   const rawData = msg.web_app_data?.data;
 
   console.log("📩 Вхідні дані з WebApp:");
-  console.log("chatId:", chatId);
-  console.log("userId:", userId);
-  console.log("username:", username);
-  console.log("rawData:", rawData);
+  console.log({ chatId, userId, username, rawData });
 
   try {
     const data = JSON.parse(rawData);
@@ -123,6 +125,12 @@ app.get("/api/scoreboard", async (req, res) => {
 
 // 🚀 Запуск сервера
 const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Сервер Fitness Quest запущено 🚀");
+});
+
+
 app.listen(PORT, () => {
   console.log(`🌍 Сервер працює на порту ${PORT}`);
 });
