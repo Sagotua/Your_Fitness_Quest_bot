@@ -15,7 +15,12 @@ const bot = new TelegramBot(token, { polling: true });
 // 🟢 MongoDB URI
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
-const client = new MongoClient(mongoUri);
+const client = new MongoClient(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  tls: true,
+  tlsAllowInvalidCertificates: false
+});
 
 let collection;
 
