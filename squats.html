@@ -120,8 +120,8 @@
                 reps: repsPerSet
             };
 
-            if (window.Telegram?.WebApp) {
-                console.log("▶️ Надсилаю payload: ", payload);
+            if (window.Telegram?.WebApp && Telegram.WebApp.initData) {
+                console.log("📤 Надсилаю payload:", payload);
                 Telegram.WebApp.sendData(JSON.stringify(payload));
 
                 const message = document.createElement("div");
@@ -149,7 +149,8 @@
                 container.appendChild(message);
                 container.appendChild(btn);
             } else {
-                alert("❌ Telegram WebApp API не доступний");
+                console.warn("❌ Telegram WebApp API не активний або відкрито не в Telegram");
+                alert("❌ Запуск можливий лише через Telegram WebApp");
             }
         }
 

@@ -120,7 +120,7 @@
                 reps: repsPerSet
             };
 
-            if (window.Telegram?.WebApp) {
+            if (window.Telegram?.WebApp && Telegram.WebApp.initData) {
                 Telegram.WebApp.sendData(JSON.stringify(payload));
                 console.log("📤 Дані надіслано в Telegram:", payload);
 
@@ -149,7 +149,8 @@
                 container.appendChild(message);
                 container.appendChild(btn);
             } else {
-                alert("❌ Telegram WebApp API не доступний");
+                console.warn("❌ Telegram WebApp API не активний або відкрито не в Telegram");
+                alert("❌ Запуск можливий лише через Telegram WebApp");
             }
         }
 
