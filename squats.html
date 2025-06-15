@@ -121,6 +121,7 @@
             };
 
             if (window.Telegram?.WebApp) {
+                console.log("▶️ Надсилаю payload: ", payload);
                 Telegram.WebApp.sendData(JSON.stringify(payload));
 
                 const message = document.createElement("div");
