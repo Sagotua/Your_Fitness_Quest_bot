@@ -2,19 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const { MongoClient } = require("mongodb");
 const TelegramBot = require("node-telegram-bot-api");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+app.use(cors()); // 👈 дозволяє Vercel звертатись до Render
 
-const token = "7928189423:AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
+// 🟢 Telegram токен
+const token = process.env.TELEGRAM_BOT_TOKEN || "YOUR_FALLBACK_BOT_TOKEN";
 const bot = new TelegramBot(token, { polling: true });
 
+// 🟢 MongoDB URI
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
 const client = new MongoClient(mongoUri);
 
 let collection;
 
+// 🔌 Підключення до MongoDB
 async function connectToMongo() {
   try {
     await client.connect();
@@ -30,7 +35,7 @@ async function connectToMongo() {
 }
 connectToMongo();
 
-// ▶️ Старт командою /start
+// ▶️ Команда /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
 
@@ -43,8 +48,9 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
+// 📩 Обробка результатів з WebApp
 bot.on("web_app_data", async (msg) => {
-  console.log("📩 Дані отримані з WebApp:", msg.web_app_data);
+  console.log("📩 Отримано web_app_data:", msg.web_app_data);
 
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -65,12 +71,12 @@ bot.on("web_app_data", async (msg) => {
     console.log(`📝 Збережено в MongoDB:`, entry);
     bot.sendMessage(chatId, `✅ Результат для ${entry.exercise} збережено!`);
   } catch (e) {
-    console.error("❌ Помилка при обробці WebApp-даних:", e);
+    console.error("❌ Помилка при збереженні:", e);
     bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
   }
 });
 
-// 🏆 API таблиці лідерів (2 окремі топи)
+// 🏆 Таблиця лідерів (2 топи)
 app.get("/api/scoreboard", async (req, res) => {
   try {
     const allResults = await collection.find({}).toArray();
@@ -83,13 +89,11 @@ app.get("/api/scoreboard", async (req, res) => {
       const total = Array.isArray(r.reps) ? r.reps.reduce((a, b) => a + b, 0) : 0;
 
       if (r.exercise === "pushups") {
-        if (!pushups[name]) pushups[name] = 0;
-        pushups[name] += total;
+        pushups[name] = (pushups[name] || 0) + total;
       }
 
       if (r.exercise === "squats") {
-        if (!squats[name]) squats[name] = 0;
-        squats[name] += total;
+        squats[name] = (squats[name] || 0) + total;
       }
     }
 
@@ -106,11 +110,12 @@ app.get("/api/scoreboard", async (req, res) => {
       squats: squatLeaders
     });
   } catch (e) {
-    console.error("❌ Помилка при формуванні scoreboard:", e);
+    console.error("❌ Помилка при формуванні /api/scoreboard:", e);
     res.status(500).json({ error: "DB error" });
   }
 });
 
+// 🚀 Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Web server запущено на порту ${PORT}`);
