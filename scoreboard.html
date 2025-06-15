@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Таблиця лідерів | Fitness Quest</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -93,9 +94,8 @@
         const res = await fetch("https://fitness-server-8k9n.onrender.com/api/scoreboard");
         const data = await res.json();
 
-        if (!data || !Array.isArray(data.pushups) || !Array.isArray(data.squats)) {
-          throw new Error("Некоректні дані з сервера");
-        }
+        const pushups = data.pushups;
+        const squats = data.squats;
 
         const pushupsContainer = document.getElementById("pushups");
         const squatsContainer = document.getElementById("squats");
@@ -103,14 +103,14 @@
         pushupsContainer.innerHTML = '<div class="title">💪 ТОП ВІДЖИМАНЬ</div>';
         squatsContainer.innerHTML = '<div class="title">🦵 ТОП ПРИСІДАНЬ</div>';
 
-        data.pushups.forEach((entry, i) => {
+        pushups.forEach((entry, i) => {
           const div = document.createElement("div");
           div.className = "entry";
           div.innerHTML = `<strong>${i + 1}. ${entry.name}</strong><br/>Віджимання: ${entry.total}`;
           pushupsContainer.appendChild(div);
         });
 
-        data.squats.forEach((entry, i) => {
+        squats.forEach((entry, i) => {
           const div = document.createElement("div");
           div.className = "entry";
           div.innerHTML = `<strong>${i + 1}. ${entry.name}</strong><br/>Присідання: ${entry.total}`;
@@ -133,4 +133,5 @@
     });
   </script>
 </body>
+
 </html>

@@ -63,7 +63,7 @@ bot.onText(/\/start/, (msg) => {
 bot.on("web_app_data", async (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
-  const username = msg.from.username || msg.from.first_name || `user${userId}`;
+  const name = r.username ? "@" + r.username : `user${r.userId}`;
 
   try {
     const data = JSON.parse(msg.web_app_data.data);
