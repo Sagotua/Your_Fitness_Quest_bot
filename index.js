@@ -16,8 +16,6 @@ const bot = new TelegramBot(token);
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
 const client = new MongoClient(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
   tls: true,
   tlsAllowInvalidCertificates: false
 });
