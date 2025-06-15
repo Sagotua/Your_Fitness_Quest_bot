@@ -30,8 +30,8 @@ app.get("/api/scoreboard", async (req, res) => {
       .sort((a, b) => b.total - a.total);
 
     res.json({
-      pushups: pushupLeaders,
-      squats: squatLeaders
+      pushups: pushupLeaders || [],
+      squats: squatLeaders || []
     });
   } catch (e) {
     console.error("❌ Помилка при формуванні scoreboard:", e);
