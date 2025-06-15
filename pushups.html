@@ -116,16 +116,37 @@
 
         function finish() {
             const payload = {
-                exercise: 'pushups',
+                exercise: location.pathname.includes("squats") ? "squats" : "pushups",
                 reps: repsPerSet
             };
 
+            const message = document.createElement("div");
+            message.textContent = "✅ Результати збережено!";
+            message.style = `
+            margin-top: 20px;
+            color: white;
+            background: green;
+            padding: 12px;
+            border: 4px solid black;
+            font-size: 12px;
+            max-width: 240px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'Press Start 2P', cursive;
+        `;
+
+            const btn = document.createElement("button");
+            btn.textContent = "🏆 Переглянути таблицю";
+            btn.className = "btn";
+            btn.style.marginTop = "12px";
+            btn.onclick = () => location.href = "scoreboard.html";
+
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.sendData(JSON.stringify(payload));
-                alert("✅ Результати відправлено!"); // повідомлення замість закриття
-            } else {
-                alert("❌ Telegram WebApp API не доступний");
             }
+
+            document.querySelector(".container").appendChild(message);
+            document.querySelector(".container").appendChild(btn);
         }
 
         window.addEventListener("DOMContentLoaded", () => {
