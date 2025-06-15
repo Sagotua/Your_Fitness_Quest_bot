@@ -31,8 +31,14 @@ bot.on("web_app_data", (msg) => {
   try {
     const data = JSON.parse(msg.web_app_data.data); // { exercise: "pushups", reps: [..] }
 
-    if (!results[username]) results[username] = [];
-    results[username].push({
+    if (!results[userId]) {
+      results[userId] = {
+        username,
+        data: []
+      };
+    }
+
+    results[userId].data.push({
       exercise: data.exercise,
       reps: data.reps,
       date: new Date().toISOString()
@@ -48,27 +54,18 @@ bot.on("web_app_data", (msg) => {
 
 // 🌐 API для scoreboard
 app.get("/api/scoreboard", (req, res) => {
-  const formatted = Object.entries(results).map(([name, resList]) => {
+  const formatted = Object.values(results).map((user) => {
     const data = {
-      name,
-      results: [] // потрібна для сумування в scoreboard.html
+      name: "@" + user.username,
+      pushups: 0,
+      squats: 0
     };
 
-    // Групуємо по вправі
-    const grouped = {
-      pushups: [],
-      squats: []
-    };
-
-    resList.forEach(entry => {
-      if (entry.exercise === "pushups") grouped.pushups.push(...entry.reps);
-      if (entry.exercise === "squats") grouped.squats.push(...entry.reps);
+    user.data.forEach(entry => {
+      const total = entry.reps.reduce((a, b) => a + b, 0);
+      if (entry.exercise === "pushups") data.pushups += total;
+      if (entry.exercise === "squats") data.squats += total;
     });
-
-    if (grouped.pushups.length > 0)
-      data.results.push({ exercise: "pushups", reps: grouped.pushups });
-    if (grouped.squats.length > 0)
-      data.results.push({ exercise: "squats", reps: grouped.squats });
 
     return data;
   });
