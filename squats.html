@@ -123,8 +123,9 @@
             // Додаємо діагностику:
             console.log("🧾 initData:", Telegram.WebApp?.initData);
 
-            if (window.Telegram?.WebApp && Telegram.WebApp.initData) {
+            if (window.Telegram?.WebApp) {
                 console.log("📤 Надсилаю payload:", payload);
+                console.log("🧾 initData:", Telegram.WebApp.initData || "(порожньо)");
                 Telegram.WebApp.sendData(JSON.stringify(payload));
 
                 const message = document.createElement("div");
@@ -152,7 +153,7 @@
                 container.appendChild(message);
                 container.appendChild(btn);
             } else {
-                console.warn("❌ Telegram WebApp API не активний або відкрито не в Telegram");
+                console.warn("❌ Telegram WebApp API не активний або не в Telegram");
                 alert("❌ Запуск можливий лише через Telegram WebApp");
             }
         }

@@ -30,8 +30,10 @@ async function connectToMongo() {
 }
 connectToMongo();
 
+// ▶️ Старт командою /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
+
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
     reply_markup: {
       inline_keyboard: [[
