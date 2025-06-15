@@ -9,7 +9,7 @@
     <!-- Піксельний шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         html,
@@ -135,6 +135,9 @@
             if (tg) {
                 tg.ready();
                 tg.expand();
+            } else {
+                console.log("❌ Telegram WebApp API не доступний");
+                alert("❌ Telegram WebApp API не доступний");
             }
         });
     </script>
