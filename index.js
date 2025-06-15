@@ -1,17 +1,20 @@
 require("dotenv").config();
-const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const app = express();
+const TelegramBot = require("node-telegram-bot-api");
 
+const app = express();
+app.use(express.json());
+
+// 📌 Telegram токен
 const token = "AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
 const bot = new TelegramBot(token, { polling: true });
 
+// 📌 MongoDB
 const mongoUri = process.env.MONGODB_URI;
 const client = new MongoClient(mongoUri);
 
-
-app.use(express.json());
+let collection; // глобальна змінна для доступу до колекції
 
 // 🔌 Підключення до MongoDB
 async function connectToMongo() {
@@ -20,13 +23,17 @@ async function connectToMongo() {
     const db = client.db("fitness"); // база
     collection = db.collection("results"); // колекція
     console.log("✅ Підключено до MongoDB");
+
+    // (Опціонально) тестовий підрахунок
+    const count = await collection.countDocuments();
+    console.log(`📦 В базі результатів: ${count} документів`);
   } catch (err) {
     console.error("❌ MongoDB підключення провалено", err);
   }
 }
 connectToMongo();
 
-// 🔘 Стартове повідомлення
+// ▶️ Старт командою /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
@@ -47,6 +54,10 @@ bot.on("web_app_data", async (msg) => {
   try {
     const data = JSON.parse(msg.web_app_data.data); // { exercise, reps }
 
+    if (!data.exercise || !Array.isArray(data.reps)) {
+      throw new Error("Невірний формат даних");
+    }
+
     const entry = {
       userId,
       username,
@@ -56,15 +67,15 @@ bot.on("web_app_data", async (msg) => {
     };
 
     await collection.insertOne(entry);
-    console.log(`📝 Збережено в MongoDB:`, entry);
+    console.log(`📝 Збережено в MongoDB для ${username}:`, data);
     bot.sendMessage(chatId, `✅ Результат для ${data.exercise} збережено!`);
   } catch (e) {
-    console.error("❌ Помилка MongoDB:", e);
+    console.error("❌ Помилка при обробці WebApp-даних:", e);
     bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
   }
 });
 
-// 📊 Таблиця лідерів
+// 🏆 API таблиці лідерів
 app.get("/api/scoreboard", async (req, res) => {
   try {
     const allResults = await collection.find({}).toArray();
@@ -80,19 +91,19 @@ app.get("/api/scoreboard", async (req, res) => {
         };
       }
 
-      const total = r.reps.reduce((a, b) => a + b, 0);
+      const total = Array.isArray(r.reps) ? r.reps.reduce((a, b) => a + b, 0) : 0;
       if (r.exercise === "pushups") summary[uid].pushups += total;
       if (r.exercise === "squats") summary[uid].squats += total;
     }
 
     res.json(Object.values(summary));
   } catch (e) {
-    console.error("❌ Помилка при отриманні таблиці:", e);
+    console.error("❌ Помилка при формуванні scoreboard:", e);
     res.status(500).json({ error: "DB error" });
   }
 });
 
-// 🚀 Старт сервера
+// 🚀 Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Web server запущено на порту ${PORT}`);

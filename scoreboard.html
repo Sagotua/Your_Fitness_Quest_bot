@@ -1,135 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="uk">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scoreboard | Fitness Quest</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Таблиця лідерів | Fitness Quest</title>
 
-    <!-- Піксельний шрифт -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background: url('https://i.postimg.cc/L8pzwn7Y/bgotherpgs.png') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Press Start 2P', cursive;
-            color: black;
-        }
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://i.postimg.cc/L8pzwn7Y/bgotherpgs.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Press Start 2P', cursive;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
 
-        .container {
-            padding: 20px;
-            text-align: center;
-        }
+    h1 {
+      font-size: 14px;
+      color: #FFD400;
+      text-shadow: 2px 2px 0 black;
+      margin-bottom: 20px;
+    }
 
-        h1 {
-            font-size: 14px;
-            margin-bottom: 20px;
-            color: #FFD400;
-            text-shadow: 2px 2px 0 black;
-        }
+    .scoreboard {
+      background: rgba(0, 0, 0, 0.75);
+      border: 4px solid #FFD400;
+      padding: 16px;
+      max-width: 320px;
+      margin: 20px auto;
+      box-shadow: 4px 4px 0px black;
+    }
 
-        table {
-            margin: 0 auto;
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 360px;
-            background-color: rgba(255, 255, 255, 0.9);
-            font-size: 10px;
-        }
+    .entry {
+      margin-bottom: 12px;
+      text-align: left;
+      font-size: 10px;
+      border-bottom: 1px dashed #FFD400;
+      padding-bottom: 6px;
+    }
 
-        th,
-        td {
-            border: 2px solid black;
-            padding: 6px;
-        }
+    .entry:last-child {
+      border-bottom: none;
+    }
 
-        th {
-            background-color: #FFD400;
-        }
+    .btn {
+      background-color: #FFD400;
+      color: black;
+      border: 4px solid black;
+      padding: 12px 20px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px black;
+      margin-top: 20px;
+    }
 
-        .btn {
-            margin-top: 20px;
-            background-color: #FFD400;
-            color: black;
-            border: 4px solid black;
-            padding: 18px 24px;
-            font-size: 14px;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 4px 4px 0px black;
-            transition: all 0.1s ease;
-        }
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px black;
+    }
 
-        .btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px black;
-        }
-    </style>
+    .title {
+      color: #FFD400;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>🏆 SCOREBOARD</h1>
+  <h1>🏆 Таблиця лідерів</h1>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Push-Ups</th>
-                    <th>Squats</th>
-                </tr>
-            </thead>
-            <tbody id="scoreboardBody">
-                <!-- JS will render rows here -->
-            </tbody>
-        </table>
+  <div class="scoreboard" id="pushups">
+    <div class="title">💪 ТОП ВІДЖИМАНЬ</div>
+    Завантаження...
+  </div>
 
-        <button class="btn" onclick="location.href='index.html'">← Back</button>
-    </div>
+  <div class="scoreboard" id="squats">
+    <div class="title">🦵 ТОП ПРИСІДАНЬ</div>
+    Завантаження...
+  </div>
 
-    <script>
-        async function fetchAndRender() {
-            try {
-                const res = await fetch("/api/scoreboard");
-                const data = await res.json();
-                renderScoreboard(data);
-            } catch (err) {
-                console.error("⚠️ Не вдалося завантажити таблицю результатів:", err);
-            }
-        }
+  <button class="btn" onclick="location.href='index.html'">← Назад</button>
 
-        fetchAndRender();
+  <script>
+    async function loadScoreboard() {
+      try {
+        const res = await fetch("/api/scoreboard");
+        const data = await res.json();
 
-        function renderScoreboard(data) {
-            const tbody = document.getElementById("scoreboardBody");
-            tbody.innerHTML = "";
+        const pushups = [...data].sort((a, b) => b.pushups - a.pushups);
+        const squats = [...data].sort((a, b) => b.squats - a.squats);
 
-            data.forEach(player => {
-                let pushups = 0;
-                let squats = 0;
+        const pushupsContainer = document.getElementById("pushups");
+        const squatsContainer = document.getElementById("squats");
 
-                player.results.forEach(result => {
-                    const total = result.reps.reduce((a, b) => a + b, 0);
-                    if (result.exercise === "pushups") pushups += total;
-                    if (result.exercise === "squats") squats += total;
-                });
+        pushupsContainer.innerHTML = '<div class="title">💪 ТОП ВІДЖИМАНЬ</div>';
+        squatsContainer.innerHTML = '<div class="title">🦵 ТОП ПРИСІДАНЬ</div>';
 
-                const row = document.createElement("tr");
-                row.innerHTML = `
-          <td>${player.name}</td>
-          <td>${pushups}</td>
-          <td>${squats}</td>
-        `;
-                tbody.appendChild(row);
-            });
-        }
+        pushups.forEach((entry, i) => {
+          const div = document.createElement("div");
+          div.className = "entry";
+          div.innerHTML = `<strong>${i + 1}. ${entry.name}</strong><br/>Віджимання: ${entry.pushups}`;
+          pushupsContainer.appendChild(div);
+        });
 
-    </script>
+        squats.forEach((entry, i) => {
+          const div = document.createElement("div");
+          div.className = "entry";
+          div.innerHTML = `<strong>${i + 1}. ${entry.name}</strong><br/>Присідання: ${entry.squats}`;
+          squatsContainer.appendChild(div);
+        });
+      } catch (err) {
+        console.error("❌ Помилка завантаження:", err);
+        document.getElementById("pushups").textContent = "❌ Не вдалося завантажити таблицю.";
+        document.getElementById("squats").textContent = "❌ Не вдалося завантажити таблицю.";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
+        tg.expand();
+      }
+      loadScoreboard();
+    });
+  </script>
 </body>
-
 </html>
