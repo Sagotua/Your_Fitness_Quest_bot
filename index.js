@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 // 📌 Telegram токен
-const token = "AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
+const token = "7928189423:AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
 const bot = new TelegramBot(token, { polling: true });
 
 // 📌 MongoDB
