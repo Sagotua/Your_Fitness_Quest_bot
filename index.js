@@ -12,6 +12,7 @@ const bot = new TelegramBot(token, { polling: true });
 
 // 📌 MongoDB
 const mongoUri = process.env.MONGODB_URI;
+console.log("🧪 MONGO_URI:", mongoUri);
 const client = new MongoClient(mongoUri);
 
 let collection; // глобальна змінна для доступу до колекції
