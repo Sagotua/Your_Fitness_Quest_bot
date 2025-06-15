@@ -63,27 +63,33 @@ bot.onText(/\/start/, (msg) => {
 bot.on("web_app_data", async (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
-  const name = r.username ? "@" + r.username : `user${r.userId}`;
+  const username = msg.from.username || msg.from.first_name || `user${userId}`;
+  const rawData = msg.web_app_data?.data;
+
+  console.log("📩 Вхідні дані з WebApp:");
+  console.log("chatId:", chatId);
+  console.log("userId:", userId);
+  console.log("username:", username);
+  console.log("rawData:", rawData);
 
   try {
-    const data = JSON.parse(msg.web_app_data.data);
-    const totalReps = Array.isArray(data.reps) ? data.reps.reduce((a, b) => a + b, 0) : 0;
+    const data = JSON.parse(rawData);
 
     const entry = {
       userId,
       username,
       exercise: data.exercise,
       reps: data.reps,
-      total: totalReps,
       date: new Date().toISOString()
     };
 
     console.log("➡️ Запис у Mongo:", entry);
-    await collection.insertOne(entry);
 
-    bot.sendMessage(chatId, `✅ Збережено ${totalReps} для ${entry.exercise}!`);
+    await collection.insertOne(entry);
+    console.log("📝 Збережено:", entry);
+    bot.sendMessage(chatId, `✅ Результат для ${entry.exercise} збережено!`);
   } catch (err) {
-    console.error("❌ Помилка при обробці web_app_data:", err);
+    console.error("❌ Помилка при обробці:", err);
     bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
   }
 });
