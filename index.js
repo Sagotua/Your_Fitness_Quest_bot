@@ -26,10 +26,7 @@ app.post(`/bot${token}`, (req, res) => {
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
 
-const client = new MongoClient(mongoUri, {
-  tls: true,
-  tlsAllowInvalidCertificates: false
-});
+const client = new MongoClient(mongoUri);
 
 let collection;
 async function connectToMongo() {
