@@ -1,3 +1,4 @@
+require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
 const { MongoClient } = require("mongodb");
@@ -6,9 +7,9 @@ const app = express();
 const token = "AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
 const bot = new TelegramBot(token, { polling: true });
 
-const mongoUri = "mongodb+srv://sagotua:2808togetheR.qwe@fitnesquest.fr7epue.mongodb.net/?retryWrites=true&w=majority&appName=FitnesQuest";
+const mongoUri = process.env.MONGODB_URI;
 const client = new MongoClient(mongoUri);
-let collection;
+
 
 app.use(express.json());
 
