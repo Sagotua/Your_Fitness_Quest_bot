@@ -6,9 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fitness WebApp</title>
 
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <!-- Піксельний шрифт -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 
   <style>
     html,
@@ -66,11 +68,12 @@
     window.addEventListener("DOMContentLoaded", () => {
       const tg = window.Telegram?.WebApp;
       if (tg) {
-        console.log("✅ Telegram WebApp API доступний");
         tg.ready();
         tg.expand();
+        console.log("✅ Telegram WebApp API активовано");
       } else {
-        console.log("❌ Telegram WebApp API не доступний");
+        console.warn("❌ Telegram WebApp API не доступний");
+        alert("❌ Telegram WebApp API не доступний. Запусти через Telegram бот.");
       }
     });
   </script>

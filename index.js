@@ -1,16 +1,31 @@
 const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
+const { MongoClient } = require("mongodb");
 const app = express();
 
 const token = "AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
 const bot = new TelegramBot(token, { polling: true });
 
-// ⏺ Тимчасове сховище (у пам'яті)
-const results = {};
+const mongoUri = "mongodb+srv://sagotua:2808togetheR.qwe@fitnesquest.fr7epue.mongodb.net/?retryWrites=true&w=majority&appName=FitnesQuest";
+const client = new MongoClient(mongoUri);
+let collection;
 
-app.use(express.json()); // На майбутнє, якщо буде POST
+app.use(express.json());
 
-// 🔘 Відкриваємо вебдодаток
+// 🔌 Підключення до MongoDB
+async function connectToMongo() {
+  try {
+    await client.connect();
+    const db = client.db("fitness"); // база
+    collection = db.collection("results"); // колекція
+    console.log("✅ Підключено до MongoDB");
+  } catch (err) {
+    console.error("❌ MongoDB підключення провалено", err);
+  }
+}
+connectToMongo();
+
+// 🔘 Стартове повідомлення
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
@@ -22,58 +37,61 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
-// 📩 Прийом даних з WebApp
-bot.on("web_app_data", (msg) => {
+// 📩 Прийом результатів з WebApp
+bot.on("web_app_data", async (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
   const username = msg.from.username || `id${userId}`;
 
   try {
-    const data = JSON.parse(msg.web_app_data.data); // { exercise: "pushups", reps: [..] }
+    const data = JSON.parse(msg.web_app_data.data); // { exercise, reps }
 
-    if (!results[userId]) {
-      results[userId] = {
-        username,
-        data: []
-      };
-    }
-
-    results[userId].data.push({
+    const entry = {
+      userId,
+      username,
       exercise: data.exercise,
       reps: data.reps,
       date: new Date().toISOString()
-    });
+    };
 
-    console.log(`📝 Збережено для ${username}:`, data);
+    await collection.insertOne(entry);
+    console.log(`📝 Збережено в MongoDB:`, entry);
     bot.sendMessage(chatId, `✅ Результат для ${data.exercise} збережено!`);
   } catch (e) {
-    console.error("❌ Помилка при обробці даних:", e);
-    bot.sendMessage(chatId, "⚠️ Сталася помилка при збереженні результату.");
+    console.error("❌ Помилка MongoDB:", e);
+    bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
   }
 });
 
-// 🌐 API для scoreboard
-app.get("/api/scoreboard", (req, res) => {
-  const formatted = Object.values(results).map((user) => {
-    const data = {
-      name: "@" + user.username,
-      pushups: 0,
-      squats: 0
-    };
+// 📊 Таблиця лідерів
+app.get("/api/scoreboard", async (req, res) => {
+  try {
+    const allResults = await collection.find({}).toArray();
 
-    user.data.forEach(entry => {
-      const total = entry.reps.reduce((a, b) => a + b, 0);
-      if (entry.exercise === "pushups") data.pushups += total;
-      if (entry.exercise === "squats") data.squats += total;
-    });
+    const summary = {};
+    for (const r of allResults) {
+      const uid = r.userId;
+      if (!summary[uid]) {
+        summary[uid] = {
+          name: "@" + r.username,
+          pushups: 0,
+          squats: 0
+        };
+      }
 
-    return data;
-  });
+      const total = r.reps.reduce((a, b) => a + b, 0);
+      if (r.exercise === "pushups") summary[uid].pushups += total;
+      if (r.exercise === "squats") summary[uid].squats += total;
+    }
 
-  res.json(formatted);
+    res.json(Object.values(summary));
+  } catch (e) {
+    console.error("❌ Помилка при отриманні таблиці:", e);
+    res.status(500).json({ error: "DB error" });
+  }
 });
 
-// 🚀 Запуск сервера
+// 🚀 Старт сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Web server запущено на порту ${PORT}`);
