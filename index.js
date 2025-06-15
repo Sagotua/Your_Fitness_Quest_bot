@@ -6,26 +6,22 @@ const TelegramBot = require("node-telegram-bot-api");
 const app = express();
 app.use(express.json());
 
-// 📌 Telegram токен
 const token = "7928189423:AAFBsIzl18s2Niblp1BhMtptCDonMhFgAeg";
 const bot = new TelegramBot(token, { polling: true });
 
-// 📌 MongoDB
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
 const client = new MongoClient(mongoUri);
 
-let collection; // глобальна змінна для доступу до колекції
+let collection;
 
-// 🔌 Підключення до MongoDB
 async function connectToMongo() {
   try {
     await client.connect();
-    const db = client.db("fitness"); // база
-    collection = db.collection("results"); // колекція
+    const db = client.db("fitness");
+    collection = db.collection("results");
     console.log("✅ Підключено до MongoDB");
 
-    // (Опціонально) тестовий підрахунок
     const count = await collection.countDocuments();
     console.log(`📦 В базі результатів: ${count} документів`);
   } catch (err) {
@@ -34,7 +30,6 @@ async function connectToMongo() {
 }
 connectToMongo();
 
-// ▶️ Старт командою /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
@@ -46,7 +41,6 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
-// 📩 Прийом результатів з WebApp
 bot.on("web_app_data", async (msg) => {
   console.log("📦 Отримано web_app_data:", msg.web_app_data);
 
@@ -55,7 +49,7 @@ bot.on("web_app_data", async (msg) => {
   const username = msg.from.username || `id${userId}`;
 
   try {
-    const data = JSON.parse(msg.web_app_data.data); // { exercise, reps }
+    const data = JSON.parse(msg.web_app_data.data);
 
     const entry = {
       userId,
@@ -74,7 +68,7 @@ bot.on("web_app_data", async (msg) => {
   }
 });
 
-// 🏆 API таблиці лідерів
+// 🏆 API таблиці лідерів (2 окремі топи)
 app.get("/api/scoreboard", async (req, res) => {
   try {
     const allResults = await collection.find({}).toArray();
@@ -115,7 +109,6 @@ app.get("/api/scoreboard", async (req, res) => {
   }
 });
 
-// 🚀 Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌐 Web server запущено на порту ${PORT}`);

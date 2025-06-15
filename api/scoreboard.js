@@ -1,37 +1,40 @@
-export default function handler(req, res) {
-  // Тимчасові дані (можна буде під'єднати до БД або globalThis)
-  const results = {
-    "@nazar": {
-      username: "@nazar",
-      data: [
-        { exercise: "pushups", reps: [12, 14, 10, 20, 16] },
-        { exercise: "squats", reps: [10, 15, 12, 14, 14] }
-      ]
-    },
-    "@maxpush": {
-      username: "@maxpush",
-      data: [
-        { exercise: "pushups", reps: [15, 12, 10, 11, 12] },
-        { exercise: "squats", reps: [15, 14, 14, 12, 13] }
-      ]
+// 🏆 API таблиці лідерів
+app.get("/api/scoreboard", async (req, res) => {
+  try {
+    const allResults = await collection.find({}).toArray();
+
+    const pushups = {};
+    const squats = {};
+
+    for (const r of allResults) {
+      const name = "@" + r.username;
+      const total = Array.isArray(r.reps) ? r.reps.reduce((a, b) => a + b, 0) : 0;
+
+      if (r.exercise === "pushups") {
+        if (!pushups[name]) pushups[name] = 0;
+        pushups[name] += total;
+      }
+
+      if (r.exercise === "squats") {
+        if (!squats[name]) squats[name] = 0;
+        squats[name] += total;
+      }
     }
-  };
 
-  const formatted = Object.values(results).map((user) => {
-    const data = {
-      name: user.username,
-      pushups: 0,
-      squats: 0
-    };
+    const pushupLeaders = Object.entries(pushups)
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
 
-    user.data.forEach(entry => {
-      const total = entry.reps.reduce((a, b) => a + b, 0);
-      if (entry.exercise === "pushups") data.pushups += total;
-      if (entry.exercise === "squats") data.squats += total;
+    const squatLeaders = Object.entries(squats)
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+
+    res.json({
+      pushups: pushupLeaders,
+      squats: squatLeaders
     });
-
-    return data;
-  });
-
-  res.status(200).json(formatted);
-}
+  } catch (e) {
+    console.error("❌ Помилка при формуванні scoreboard:", e);
+    res.status(500).json({ error: "DB error" });
+  }
+});
