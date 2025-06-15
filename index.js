@@ -47,7 +47,7 @@ bot.onText(/\/start/, (msg) => {
 
 // 📩 Прийом результатів з WebApp
 bot.on("web_app_data", async (msg) => {
-  console.log("📩 Отримано web_app_data:", msg.web_app_data);
+  console.log("📩 Отримано web_app_data:", msg.web_app_data.data);
   const chatId = msg.chat.id;
   const userId = msg.from.id;
   const username = msg.from.username || `id${userId}`;
