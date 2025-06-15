@@ -68,8 +68,8 @@ bot.on("web_app_data", async (msg) => {
     };
 
     await collection.insertOne(entry);
-    console.log(`📝 Збережено в MongoDB для ${username}:`, data);
-    bot.sendMessage(chatId, `✅ Результат для ${data.exercise} збережено!`);
+    console.log(`📝 Збережено в MongoDB:`, entry);
+    bot.sendMessage(chatId, `✅ Результат для ${entry.exercise} збережено!`);
   } catch (e) {
     console.error("❌ Помилка при обробці WebApp-даних:", e);
     bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
