@@ -10,7 +10,7 @@ app.use(express.json());
 
 // 🟢 Telegram токен
 const token = process.env.TELEGRAM_BOT_TOKEN || "YOUR_FALLBACK_BOT_TOKEN";
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token);
 
 // 🟢 MongoDB URI
 const mongoUri = process.env.MONGODB_URI;
@@ -39,6 +39,17 @@ async function connectToMongo() {
   }
 }
 connectToMongo();
+
+// 🔔 Встановити webhook
+const WEBHOOK_URL = process.env.WEBHOOK_URL || "https://fitness-server-8k9n.onrender.com"; // твій backend
+bot.setWebHook(`${WEBHOOK_URL}/bot${token}`);
+
+// 🔄 Обробка Telegram webhook
+app.post(`/bot${token}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
 
 // ▶️ Команда /start
 bot.onText(/\/start/, (msg) => {
