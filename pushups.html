@@ -116,43 +116,31 @@
 
         function finish() {
             const payload = {
-                exercise: "pushups",
+                exercise: location.pathname.includes("squats") ? "squats" : "pushups",
                 reps: repsPerSet
             };
 
             if (window.Telegram?.WebApp) {
-                console.log("📤 Дані надіслано в Telegram:", payload);
-                console.log("🧾 initData:", Telegram.WebApp.initData || "(порожньо)");
-
+                console.log("📤 Надсилаю payload:", payload);
                 Telegram.WebApp.sendData(JSON.stringify(payload));
+                // **УВАГА**: видаляємо закриття
+                // Telegram.WebApp.close();
 
+                // Показуємо повідомлення про успіх
+                const container = document.querySelector(".container");
                 const message = document.createElement("div");
                 message.textContent = "✅ Результати збережено!";
-                message.style = `
-        margin-top: 20px;
-        color: white;
-        background: green;
-        padding: 12px;
-        border: 4px solid black;
-        font-size: 12px;
-        max-width: 240px;
-        margin-left: auto;
-        margin-right: auto;
-        font-family: 'Press Start 2P', cursive;
-    `;
-
+                message.style = `margin-top:20px; background:green; color:white; padding:12px; border:4px solid black; font-family:'Press Start 2P', cursive;`;
                 const btn = document.createElement("button");
                 btn.textContent = "🏆 Переглянути таблицю";
                 btn.className = "btn";
                 btn.style.marginTop = "12px";
                 btn.onclick = () => location.href = "scoreboard.html";
+                container.append(message, btn);
 
-                const container = document.querySelector(".container");
-                container.appendChild(message);
-                container.appendChild(btn);
+                // Забираємо подвійну кнопку, якщо вдругось є
             } else {
-                console.warn("❌ Telegram WebApp API не активний або не в Telegram");
-                alert("❌ Запуск можливий лише через Telegram WebApp");
+                alert("❌ WebApp API не доступний");
             }
         }
 
