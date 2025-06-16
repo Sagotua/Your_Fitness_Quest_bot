@@ -57,12 +57,14 @@ bot.onText(/\/start/, (msg) => {
 
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
     reply_markup: {
-      inline_keyboard: [[
+      keyboard: [[
         { text: "🚀 Старт", web_app: { url: "https://your-fitness-quest-bot.vercel.app/" } }
-      ]]
+      ]],
+      resize_keyboard: true
     }
   });
 });
+
 
 // 📩 Обробка результатів з WebApp
 bot.on("web_app_data", async (msg) => {
