@@ -98,23 +98,7 @@ bot.on("web_app_data", async (msg) => {
     bot.sendMessage(chatId, `✅ Результат для ${entry.exercise} збережено!`);
   } catch (err) {
     console.error("❌ Помилка при обробці:", err);
-  bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
-  }
-});
-
-// 🌐 Прийом результатів напряму з WebApp
-app.post("/api/results", async (req, res) => {
-  const { userId, username, exercise, reps } = req.body;
-  if (!exercise || !Array.isArray(reps)) {
-    return res.status(400).json({ error: "invalid payload" });
-  }
-  try {
-    const entry = { userId, username, exercise, reps, date: new Date().toISOString() };
-    await collection.insertOne(entry);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error("❌ Error saving results:", e);
-    res.status(500).json({ error: "DB error" });
+    bot.sendMessage(chatId, "⚠️ Помилка при збереженні результату.");
   }
 });
 
