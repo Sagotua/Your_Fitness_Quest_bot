@@ -38,17 +38,33 @@ const client = new MongoClient(mongoUri, {
 
 let collection;
 
+// async function connectToMongo() {
+//   try {
+//     await client.connect();
+//     const db = client.db("fitness");
+//     collection = db.collection("results");
+//     console.log("✅ Підключено до MongoDB");
+//   } catch (err) {
+//     console.error("❌ MongoDB підключення провалено", err);
+//     process.exit(1);
+//   }
+// }
+
 async function connectToMongo() {
   try {
     await client.connect();
-    const db = client.db("fitness");
+    // Використовуємо ім'я БД з URI, якщо воно вказане
+    const url = new URL(mongoUri);
+    const dbName = url.pathname.replace(/^\//, '') || 'fitness';
+    const db = client.db(dbName);
     collection = db.collection("results");
-    console.log("✅ Підключено до MongoDB");
+    console.log(`✅ Підключено до MongoDB (БД: ${dbName})`);
   } catch (err) {
     console.error("❌ MongoDB підключення провалено", err);
     process.exit(1);
   }
 }
+
 connectToMongo();
 
 // ▶️ Команда /start
