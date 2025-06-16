@@ -27,7 +27,7 @@ app.post(`/bot${token}`, (req, res) => {
   res.sendStatus(200);
 });
 
-// 🔗 Підключення до MongoDB
+// 🔗 Підключення до MongoDB - works!
 const mongoUri = process.env.MONGODB_URI;
 console.log("🧪 MONGO_URI:", mongoUri);
 
