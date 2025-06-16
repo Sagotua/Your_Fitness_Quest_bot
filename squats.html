@@ -126,7 +126,7 @@
 
             if (tg) {
                 console.log("📤 Надсилаю payload:", payload);
-                fetch("/api/results", {
+                fetch("https://fitness-server-8k9n.onrender.com/api/results", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
