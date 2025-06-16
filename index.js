@@ -60,9 +60,11 @@ bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
     reply_markup: {
-      inline_keyboard: [[
-        { text: "🚀 Старт", web_app: { url: WEB_APP_URL } }
-      ]]
+      keyboard: [[
+        { text: "🚀 Старт", web_app: { url: "https://your-fitness-quest-bot.vercel.app/" } }
+      ]],
+      resize_keyboard: true,
+      one_time_keyboard: true
     }
   });
 });
