@@ -123,10 +123,6 @@
             if (window.Telegram?.WebApp) {
                 console.log("📤 Надсилаю payload:", payload);
                 Telegram.WebApp.sendData(JSON.stringify(payload));
-                // **УВАГА**: видаляємо закриття
-                // Telegram.WebApp.close();
-
-                // Показуємо повідомлення про успіх
                 const container = document.querySelector(".container");
                 const message = document.createElement("div");
                 message.textContent = "✅ Результати збережено!";
@@ -137,8 +133,6 @@
                 btn.style.marginTop = "12px";
                 btn.onclick = () => location.href = "scoreboard.html";
                 container.append(message, btn);
-
-                // Забираємо подвійну кнопку, якщо вдругось є
             } else {
                 alert("❌ WebApp API не доступний");
             }
