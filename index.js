@@ -38,18 +38,6 @@ const client = new MongoClient(mongoUri, {
 
 let collection;
 
-// async function connectToMongo() {
-//   try {
-//     await client.connect();
-//     const db = client.db("fitness");
-//     collection = db.collection("results");
-//     console.log("✅ Підключено до MongoDB");
-//   } catch (err) {
-//     console.error("❌ MongoDB підключення провалено", err);
-//     process.exit(1);
-//   }
-// }
-
 async function connectToMongo() {
   try {
     await client.connect();
@@ -70,13 +58,13 @@ connectToMongo();
 // ▶️ Команда /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-
   bot.sendMessage(chatId, "Привіт! Готовий до тренування? 💪", {
     reply_markup: {
       keyboard: [[
         { text: "🚀 Старт", web_app: { url: "https://your-fitness-quest-bot.vercel.app/" } }
       ]],
-      resize_keyboard: true
+      resize_keyboard: true,
+      one_time_keyboard: true
     }
   });
 });
