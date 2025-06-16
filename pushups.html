@@ -115,30 +115,42 @@
         }
 
         function finish() {
+            const tg = window.Telegram?.WebApp;
+            const user = tg?.initDataUnsafe?.user || {};
             const payload = {
+                userId: user.id,
+                username: user.username || user.first_name || `user${user.id}`,
                 exercise: location.pathname.includes("squats") ? "squats" : "pushups",
                 reps: repsPerSet
             };
 
-            if (window.Telegram?.WebApp) {
+            if (tg) {
                 console.log("📤 Надсилаю payload:", payload);
-                Telegram.WebApp.sendData(JSON.stringify(payload));
-                // **УВАГА**: видаляємо закриття
-                // Telegram.WebApp.close();
-
-                // Показуємо повідомлення про успіх
-                const container = document.querySelector(".container");
-                const message = document.createElement("div");
-                message.textContent = "✅ Результати збережено!";
-                message.style = `margin-top:20px; background:green; color:white; padding:12px; border:4px solid black; font-family:'Press Start 2P', cursive;`;
-                const btn = document.createElement("button");
-                btn.textContent = "🏆 Переглянути таблицю";
-                btn.className = "btn";
-                btn.style.marginTop = "12px";
-                btn.onclick = () => location.href = "scoreboard.html";
-                container.append(message, btn);
-
-                // Забираємо подвійну кнопку, якщо вдругось є
+                fetch("/api/results", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("bad status");
+                    return res.json();
+                })
+                .then(() => {
+                    const container = document.querySelector(".container");
+                    const message = document.createElement("div");
+                    message.textContent = "✅ Результати збережено!";
+                    message.style = `margin-top:20px; background:green; color:white; padding:12px; border:4px solid black; font-family:'Press Start 2P', cursive;`;
+                    const btn = document.createElement("button");
+                    btn.textContent = "🏆 Переглянути таблицю";
+                    btn.className = "btn";
+                    btn.style.marginTop = "12px";
+                    btn.onclick = () => location.href = "scoreboard.html";
+                    container.append(message, btn);
+                })
+                .catch(err => {
+                    console.error("❌ Error sending results:", err);
+                    alert("❌ Помилка відправки результатів");
+                });
             } else {
                 alert("❌ WebApp API не доступний");
             }
